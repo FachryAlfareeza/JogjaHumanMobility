@@ -5,10 +5,11 @@ from pathlib import Path
 from urllib.error import ContentTooShortError, URLError
 from urllib.request import urlretrieve
 
-MAX_TRIES = 5
+from config import RAW_JP
 
+MAX_TRIES = 5
 RECORD = "https://zenodo.org/records/23157460/files/{name}?download=1"
-OUT_DIR = Path(__file__).resolve().parents[1] / "data" / "raw" / "jogjapulse"
+OUT_DIR = RAW_JP
 
 FILES = {
     "presence_cell500m_daily.csv": "0b4d544e8c9ab26d69360821e9ebff27",

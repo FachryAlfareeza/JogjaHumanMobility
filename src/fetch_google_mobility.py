@@ -8,13 +8,14 @@ Source: https://www.google.com/covid19/mobility/ (data frozen on 15 Oct 2022)
 """
 import io
 import zipfile
-from pathlib import Path
 from urllib.request import Request, urlopen
 
 import pandas as pd
 
+from config import RAW_EXT
+
 ZIP_URL = "https://www.gstatic.com/covid19/mobility/Region_Mobility_Report_CSVs.zip"
-OUT_DIR = Path(__file__).resolve().parents[1] / "data" / "raw" / "external" / "google_mobility"
+OUT_DIR = RAW_EXT / "google_mobility"
 YEARS = ["2021", "2022"]  # JogjaPulse window: Dec 2021 - Apr 2022
 
 

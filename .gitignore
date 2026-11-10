@@ -5,5 +5,9 @@ data/raw/**
 data/interim/**
 data/processed/**
 !data/**/.gitkeep
+!data/raw/external/
+data/raw/external/*
+!data/raw/external/calendar_2021_2022.csv
 video/*.mp4
 video/*.mov
+!data/raw/external/.gitkeep

@@ -1,0 +1,10 @@
+date,name,type,verified,source
+2021-12-25,Christmas,public_holiday,yes,Fixed date
+2022-01-01,New Year,public_holiday,yes,Fixed date
+2022-02-01,Imlek (Chinese New Year 2573),public_holiday,yes,SKB 3 Menteri 963/2021
+2022-02-28,Isra Mi'raj,public_holiday,yes,SKB 3 Menteri 963/2021
+2022-03-03,Nyepi (Saka New Year 1944),public_holiday,no,SKB 3 Menteri 963/2021 (not checked against the text)
+2022-04-02,Ramadan 1443 starts (Muhammadiyah),religious_period,yes,Maklumat PP Muhammadiyah 01/MLM/I.0/E/2022
+2022-04-03,Ramadan 1443 starts (government),religious_period,yes,Sidang isbat Kemenag 1 Apr 2022
+2022-04-15,Good Friday,public_holiday,yes,SKB 3 Menteri 963/2021
+2022-04-29,Idul Fitri collective leave,collective_leave,yes,SKB 3 Menteri 375/2022

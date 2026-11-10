@@ -12,6 +12,7 @@ Group project for Rekayasa Data (UGM): analysis and visualization of human mobil
    Widyawan, Pratama, A. R., Ariansyah, A., Farda, N. M., Pramana, S., & Miller, O. (2026). JogjaPulse: An Aggregated Spatio-Temporal Mobility Dataset for Yogyakarta, Indonesia (v1). Zenodo. https://doi.org/10.5281/zenodo.23157460. License: CC BY 4.0.
 2. Google COVID-19 Community Mobility Reports: daily % change against a Jan–Feb 2020 baseline for 6 place types, Special Region of Yogyakarta. Google LLC, https://www.google.com/covid19/mobility/ (accessed Nov 2026).
 3. Holiday calendar: `data/raw/external/calendar_2021_2022.csv`, compiled from SKB 3 Menteri and Kemenag announcements. Each row states its source and whether it was checked.
+4. Place coordinates (transit hubs, malls, beaches): `data/raw/external/places_osm.csv`, from OpenStreetMap via Nominatim by fixed OSM id (`src/fetch_places.py`). © OpenStreetMap contributors, ODbL.
 
 The two mobility sources are collected and processed independently (see [docs/related_datasets.md](docs/related_datasets.md)).
 
@@ -23,6 +24,7 @@ python -m venv .venv
 pip install -r requirements.txt
 python src/download_data.py          # JogjaPulse from Zenodo, MD5-checked
 python src/fetch_google_mobility.py  # Google mobility, Indonesia files + DIY subset
+python src/fetch_places.py           # OSM coordinates of transit hubs, malls, beaches
 python src/clean.py                  # typed, validated tables -> data/interim/
 python src/build_features.py         # analysis tables -> data/processed/
 ```

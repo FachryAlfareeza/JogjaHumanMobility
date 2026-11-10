@@ -26,8 +26,8 @@ These appear in all processed tables except `od_dec_feb`.
 | `jp_city_daytime_share` | Kota Yogyakarta's share of DIY device-hours, 09–17 |
 | `jp_share_<kabupaten>` | Kabupaten's share of DIY device-hours that day (5 columns, sum to 1) |
 | `g_<category>` | Google % change vs the Jan–Feb 2020 weekday baseline (6 categories) |
-| `dev_jp_<measure>` | log(value / median of the same weekday within ±2 weeks). Only for measures that don't depend on panel size. |
-| `dev_g_<category>` | value − median of the same weekday within ±2 weeks |
+| `dev_jp_<measure>` | log(value / baseline). Baseline = median of the same weekday 1 and 2 weeks before and after, leaving out the day itself and holidays; null if fewer than 2 such days (22 and 29 Apr 2022). Only for measures that don't depend on panel size. |
+| `dev_g_<category>` | value − the same baseline |
 
 ## `hourly_kapanewon.parquet` (230,418 rows, one per kapanewon × date × hour with ≥ 5 devices)
 

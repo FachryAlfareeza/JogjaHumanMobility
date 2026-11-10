@@ -1,6 +1,6 @@
 # Project Plan: Human Mobility in Yogyakarta (Rekayasa Data)
 
-Updated 10 Nov 2026. Done: both sources downloaded and checked, EDA (`notebooks/01_eda.ipynb`), cleaning pipeline (`src/clean.py`, `src/build_features.py`). Next: analysis notebooks 02–05.
+Updated 10 Nov 2026. Done: both sources downloaded and checked, EDA (`notebooks/01_eda.ipynb`), cleaning pipeline (`src/clean.py`, `src/build_features.py`), RQ1 (`notebooks/02_cross_validation.ipynb`). Next: notebooks 03–05.
 
 Deadline assumption: week 13 starts Mon 23 Nov 2026, so the video goes on eLOK by Fri 20 Nov. This still needs confirming with the lecturer (see Risks).
 
@@ -35,21 +35,25 @@ Context layers:
 
 ### 2a. RQ1 method
 
-Compare each day with the median of the same weekday within ±2 weeks, in both sources: log ratio for JogjaPulse measures, difference for Google percentages. `build_features.py` computes these as the `dev_*` columns. Raw totals give a misleading r = −0.77 against Google residential, because the panel shrinks while residential rises.
+Compare each day with the median of the same weekday 1 and 2 weeks before and after, in both sources, leaving out the day itself and holidays: log ratio for JogjaPulse measures, difference for Google percentages. `build_features.py` computes these as the `dev_*` columns. Raw totals give a misleading r = −0.77 against Google residential, because the panel shrinks while residential rises.
 
-| Google category | JogjaPulse measure | Spearman r so far |
-|---|---|---|
-| Parks | `jp_share_gunungkidul`; to try: coastal kapanewon or beach cells | 0.31 |
-| Retail & recreation | Gondomanan + Gedongtengen daytime share; mall cells | 0.26 (using Gunungkidul share) |
-| Transit stations | Cells at Tugu, Lempuyangan, Giwangan, YIA | Not tested |
-| Workplaces | Weekday 08–17 vs 00–05 ratio | −0.01, not usable yet |
-| Residential | Inverse day/night ratio | 0.18 with the wrong sign, not usable yet |
-| General activity | `jp_pings_per_device_hour` | 0.31 retail, 0.31 transit, −0.32 residential |
-| Grocery & pharmacy | No proxy | Skipped |
+The baseline used to include the day itself, which gave 36 days an exact-zero deviation in Gunungkidul share and hid holidays such as 25 Dec (notebook 02 section 1). Fixed in `build_features.py` on 10 Nov; 22 and 29 Apr now have no baseline.
 
-The 0.31 value is reproduced by `daily_diy.parquet`. The other values come from a quick check on 10 Nov and need confirming in `02_cross_validation.ipynb`. Current evidence supports "weak to moderate agreement, clearest on holidays".
+Results from `02_cross_validation.ipynb` (Spearman, DIY, 95% CI from a 14-day block bootstrap):
 
-Open items: build cell lists for stations, malls and beaches (artifact cells excluded); find a workplaces/residential measure; check why 25 Dec shows near-zero deviation.
+| Google category | JogjaPulse measure | r | 95% CI | Holidays same sign |
+|---|---|---|---|---|
+| Parks | Gunungkidul share | 0.37 | 0.11 to 0.56 | 5 of 6 |
+| Parks | Coastal kapanewon share (Kretek, Tanjungsari, Tepus) | 0.27 | −0.05 to 0.51 | 5 of 6 |
+| Transit stations | Share of cells within 500 m of Tugu, Lempuyangan, Jombor (OSM) | 0.19 | −0.07 to 0.41 | 3 of 6 |
+| Retail & recreation | Share of cells at 5 malls (OSM) | 0.03 | −0.14 to 0.21 | 4 of 6 |
+| Retail & recreation | Pings per device-hour | 0.27 | 0.12 to 0.53 | |
+| Workplaces, residential | Day/night kapanewon dissimilarity | −0.16, −0.04 | | |
+| Grocery & pharmacy | No proxy | | | |
+
+Conclusion for the video: weak-to-moderate agreement on leisure days (Gunungkidul share vs parks), clearest on holidays; no clear agreement for stations or malls. JogjaPulse shows no commuting rhythm (day/night dissimilarity is 0.190–0.205 on every weekday), so it can't validate workplaces or residential. Gunungkidul share correlates about equally with Google parks, retail and transit, so read it as "out-of-home activity on days off", not parks specifically. Agreement is higher in the last panel segment (r = 0.46 from 16 Feb) than in December (0.17).
+
+Beach grid cells are suppressed on most days (Parangtritis is published on 14 of 151), so beaches use coastal kapanewon. Giwangan, the airports and Jogja City Mall cells are partly excluded for being published on fewer than 140 days.
 
 ### 2b. Normalisation rules
 
@@ -78,7 +82,7 @@ Roles: LEAD (repo, integration), DE (data), AN (analysis), VIZ, MEDIA (video, sl
 | T6 | Kapanewon crosswalk | `data/interim/kapanewon_crosswalk.csv` | DE | T5 | Done for JogjaPulse files; HDX column waits for T3 |
 | T7–T10 | `src/build_features.py` | `data/processed/{daily_diy, hourly_kapanewon, grid_daily, od_dec_feb}.parquet` | DE | T2, T5 | Done |
 | T11 | `01_eda.ipynb` | 16 figures `reports/figures/eda_*.png` | AN | | Done |
-| T12 | `02_cross_validation.ipynb` (RQ1) | F4–F6, correlation table | AN | T7 | Next |
+| T12 | `02_cross_validation.ipynb` (RQ1) | `rq1_corr_heatmap`, `rq1_raw_vs_adjusted`, `rq1_deviation_series` | AN | T7 | Done |
 | T13 | `03_daily_rhythm.ipynb` (RQ2) | F7–F9 | AN | T8 | |
 | T14 | `04_holiday_hotspots.ipynb` (RQ3) | F10–F12 | AN, VIZ | T9 | |
 | T15 | `05_od_flows.ipynb` (RQ4) | F13–F14 | VIZ | T10, T3 for the map | |
@@ -114,7 +118,7 @@ All notebooks after 01 read `data/processed/` and import constants from `src/con
 | Notebook | Figures | Video segment |
 |---|---|---|
 | `01_eda.ipynb` (done) | `eda_panel_decay`, `eda_raw_vs_share`, `eda_representativeness`, `eda_grid_lattice_artifacts`, `eda_heatmap_hour_weekday`, `eda_od_kabupaten_matrix`, `eda_jp_vs_google_parks` | 0:30–1:15 data and caveats |
-| `02_cross_validation.ipynb` | F4 deviation series (Gunungkidul share vs parks); F5 correlation heatmap; F6 raw vs adjusted correlation | 1:15–2:15 |
+| `02_cross_validation.ipynb` (done) | `rq1_deviation_series` (Gunungkidul share vs parks); `rq1_corr_heatmap`; `rq1_raw_vs_adjusted` | 1:15–2:15 |
 | `03_daily_rhythm.ipynb` | F7 hour × kapanewon heatmap; F8 cluster map; F9 weekday vs weekend by cluster | 2:15–3:00 |
 | `04_holiday_hotspots.ipynb` | F10 share series with holidays; F11 difference map; F12 top cells | 3:00–3:45 |
 | `05_od_flows.ipynb` | F13 flows into Kota Yogyakarta; F14 top origins | 3:45–4:20 |
@@ -138,5 +142,5 @@ All notebooks after 01 read `data/processed/` and import constants from `src/con
 ## Next 3 actions
 
 1. LEAD: confirm the eLOK deadline, assign the roles in the README team table (6 members), add members to the GitHub repo.
-2. AN: start `02_cross_validation.ipynb` from `data/processed/daily_diy.parquet` and test the transit, mall and beach cell measures.
+2. AN: start `03_daily_rhythm.ipynb` (RQ2) and `04_holiday_hotspots.ipynb` (RQ3). RQ3 can reuse `places_osm.csv` and the 140-day publication rule from notebook 02.
 3. DE: T3, fetch HDX kapanewon boundaries and add their code to the crosswalk.

@@ -8,6 +8,7 @@ data/processed/**
 !data/raw/external/
 data/raw/external/*
 !data/raw/external/calendar_2021_2022.csv
+!data/raw/external/places_osm.csv
 video/*.mp4
 video/*.mov
 !data/raw/external/.gitkeep

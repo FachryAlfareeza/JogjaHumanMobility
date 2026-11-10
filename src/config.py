@@ -11,6 +11,7 @@ PROCESSED = ROOT / "data" / "processed"
 FIGURES = ROOT / "reports" / "figures"
 
 CALENDAR_CSV = RAW_EXT / "calendar_2021_2022.csv"
+PLACES_CSV = RAW_EXT / "places_osm.csv"
 
 STUDY_START = pd.Timestamp("2021-12-01")
 STUDY_END = pd.Timestamp("2022-04-30")

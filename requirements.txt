@@ -3,6 +3,7 @@ pyarrow
 numpy
 matplotlib
 seaborn
+scipy
 plotly
 geopandas
 folium

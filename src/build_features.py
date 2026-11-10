@@ -20,19 +20,30 @@ DAY_HOURS = range(9, 18)
 HOLIDAY_TYPES = {"public_holiday", "collective_leave"}
 
 
-def weekday_deviation(df: pd.DataFrame, log_ratio: bool, window: int = 5) -> pd.DataFrame:
-    """Deviation of each day from the median of the same weekday in the surrounding weeks.
+BASELINE_WEEKS = (-2, -1, 1, 2)
+MIN_BASELINE_DAYS = 2
 
-    window=5 means the day itself plus two of the same weekday on each side (+-2 weeks).
+
+def weekday_deviation(df: pd.DataFrame, log_ratio: bool, holidays: pd.Series) -> pd.DataFrame:
+    """Deviation of each day from the median of the same weekday 1 and 2 weeks either side.
+
+    The day itself and holidays are left out of the baseline. With the day included, a day
+    that is the middle value of its own window gets a deviation of exactly 0, which hid
+    holiday spikes such as 25 Dec (notebooks/02_cross_validation.ipynb section 2).
+    Days with fewer than MIN_BASELINE_DAYS usable neighbours get NaN.
     JogjaPulse measures use log(value / baseline); Google's % values use value - baseline,
     because Google is already a % change against a weekday-specific 2020 baseline.
     """
     df = df.astype(float)
+    usable = df.index[~holidays.reindex(df.index).fillna(False).astype(bool)]
     out = pd.DataFrame(index=df.index, columns=df.columns, dtype=float)
-    for wd in range(7):
-        idx = df.index[df.index.day_of_week == wd]
-        base = df.loc[idx].rolling(window, center=True, min_periods=3).median()
-        out.loc[idx] = np.log(df.loc[idx] / base) if log_ratio else df.loc[idx] - base
+    for day in df.index:
+        nb = [day + pd.Timedelta(weeks=k) for k in BASELINE_WEEKS]
+        nb = [d for d in nb if d in usable]
+        if len(nb) < MIN_BASELINE_DAYS:
+            continue
+        base = df.loc[nb].median()
+        out.loc[day] = np.log(df.loc[day] / base) if log_ratio else df.loc[day] - base
     return out
 
 
@@ -68,12 +79,14 @@ def build_daily(hourly: pd.DataFrame, google: pd.DataFrame, cal: pd.DataFrame) -
 
     g = google.set_index("date")[GOOGLE_CATEGORIES].add_prefix("g_")
 
+    cal_d = calendar_by_date(cal).set_index("date")
     # Deviations only for measures that don't depend on panel size (not the raw totals).
     jp_rel = jp.drop(columns=["jp_presence_total", "jp_night_presence"])
-    dev = pd.concat([weekday_deviation(jp_rel, log_ratio=True).add_prefix("dev_"),
-                     weekday_deviation(g, log_ratio=False).add_prefix("dev_")], axis=1)
+    dev = pd.concat([weekday_deviation(jp_rel, log_ratio=True, holidays=cal_d.is_holiday).add_prefix("dev_"),
+                     weekday_deviation(g, log_ratio=False, holidays=cal_d.is_holiday).add_prefix("dev_")],
+                    axis=1)
 
-    daily = calendar_by_date(cal).set_index("date").join(jp).join(g).join(dev).reset_index()
+    daily = cal_d.join(jp).join(g).join(dev).reset_index()
     if len(daily) != N_DAYS or daily[jp.columns.tolist() + g.columns.tolist()].isna().any().any():
         raise ValueError("daily: missing days or values")
     share_cols = [c for c in daily.columns if c.startswith("jp_share_")]

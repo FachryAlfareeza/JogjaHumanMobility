@@ -21,7 +21,7 @@ The same slides serve two uses: the eLOK video (narration over slides) and the w
 
 | # | Time | Slide title (finding) | Visual | Key numbers on slide | Source |
 |---|---|---|---|---|---|
-| 1 | 0:00–0:15 | Mobilitas Penduduk di DIY: Apa Kata Data Ponsel? | Map of DIY with 5 kabupaten outlined, team names + NIM, course name | — | — |
+| 1 | 0:00–0:15 | Mobilitas Penduduk di DIY: Apa Kata Data Ponsel? | Map of DIY with 5 kabupaten outlined, the 6 team names + NIMs (README team table), course name | — | README |
 | 2 | 0:15–0:45 | Dua sumber data, empat pertanyaan | Left: two source cards (JogjaPulse: 500 m grid/day, kapanewon/hour, OD/month; Google CMR: province/day). Right: 4 RQ as short lines | 151 hari (1 Des 2021 – 30 Apr 2022); 78 kapanewon | EDA §2.2 |
 | 3 | 0:45–1:05 | Dari data mentah ke tabel analisis | Pipeline diagram: raw (Zenodo, Google) to `clean.py` to `build_features.py` to 4 processed tables to notebooks. GitHub URL in corner | 4 tabel processed | repo |
 | 4 | 1:05–1:40 | Jumlah device menyusut dan bergeser, jadi angka mentah tidak bisa dibandingkan antarwaktu | `eda_panel_decay.png` (break lines 1 Jan, 16 Feb), then appear `eda_raw_vs_share.png` | Night presence 3.634 → 644 per jam (Des → Apr); share Kota Yogyakarta 10,5% → 24,5% | EDA §3 |

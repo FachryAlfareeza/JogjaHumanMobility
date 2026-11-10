@@ -46,4 +46,11 @@ video/, presentation/
 
 | Name | NIM | Role |
 |---|---|---|
-| | | |
+| Muhammad Fachry Alfareeza | 24/540199/TK/59922 | |
+| Rasyadwa Arsya Irnantyanto | 24/534714/TK/59283 | |
+| Aqidatul Izzah | 24/533730/TK/59137 | |
+| Yuki Shafa Maheswari | 24/545600/TK/60708 | |
+| Amelia Ocha Maharani | 24/534372/TK/59229 | |
+| Farand Hafiz | 24/540618/TK/60027 | |
+
+Roles (LEAD, DE, AN, VIZ, MEDIA) are described in [PLAN.md](PLAN.md) section 3.

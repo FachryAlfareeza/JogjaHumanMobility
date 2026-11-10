@@ -66,7 +66,7 @@ Open items: build cell lists for stations, malls and beaches (artifact cells exc
 
 ## 3. Tasks
 
-Roles: LEAD (repo, integration), DE (data), AN (analysis), VIZ, MEDIA (video, slides).
+Roles: LEAD (repo, integration), DE (data), AN (analysis), VIZ, MEDIA (video, slides). Six members (names and NIMs in the README); with six people, DE and AN can each take two.
 
 | ID | Task | Output | Owner | Depends on | Status |
 |---|---|---|---|---|---|
@@ -137,6 +137,6 @@ All notebooks after 01 read `data/processed/` and import constants from `src/con
 
 ## Next 3 actions
 
-1. LEAD: confirm the eLOK deadline, fill in the README team table, add members to the GitHub repo.
+1. LEAD: confirm the eLOK deadline, assign the roles in the README team table (6 members), add members to the GitHub repo.
 2. AN: start `02_cross_validation.ipynb` from `data/processed/daily_diy.parquet` and test the transit, mall and beach cell measures.
 3. DE: T3, fetch HDX kapanewon boundaries and add their code to the crosswalk.

@@ -30,7 +30,9 @@ def weekday_deviation(df: pd.DataFrame, log_ratio: bool, holidays: pd.Series) ->
     The day itself and holidays are left out of the baseline. With the day included, a day
     that is the middle value of its own window gets a deviation of exactly 0, which hid
     holiday spikes such as 25 Dec (notebooks/02_cross_validation.ipynb section 2).
-    Days with fewer than MIN_BASELINE_DAYS usable neighbours get NaN.
+    A value gets NaN unless its own column has at least MIN_BASELINE_DAYS non-missing
+    neighbours: a neighbour day can exist but have a missing value (e.g. the coastal
+    kapanewon fully suppressed on 19 Apr), and a median of one value is not a baseline.
     JogjaPulse measures use log(value / baseline); Google's % values use value - baseline,
     because Google is already a % change against a weekday-specific 2020 baseline.
     """
@@ -40,9 +42,10 @@ def weekday_deviation(df: pd.DataFrame, log_ratio: bool, holidays: pd.Series) ->
     for day in df.index:
         nb = [day + pd.Timedelta(weeks=k) for k in BASELINE_WEEKS]
         nb = [d for d in nb if d in usable]
-        if len(nb) < MIN_BASELINE_DAYS:
+        if not nb:
             continue
-        base = df.loc[nb].median()
+        ref = df.loc[nb]
+        base = ref.median().where(ref.notna().sum() >= MIN_BASELINE_DAYS)
         out.loc[day] = np.log(df.loc[day] / base) if log_ratio else df.loc[day] - base
     return out
 

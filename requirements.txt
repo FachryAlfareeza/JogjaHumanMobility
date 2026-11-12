@@ -4,6 +4,7 @@ numpy
 matplotlib
 seaborn
 scipy
+scikit-learn
 plotly
 geopandas
 folium

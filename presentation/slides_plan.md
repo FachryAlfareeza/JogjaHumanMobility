@@ -1,6 +1,6 @@
 # Slide plan and script (5 minutes)
 
-_Draft 2026-11-10. Numbers marked `[isi: ...]` come from notebooks 02–05, which aren't written yet. Fill them in from the notebook cell, or cut the sentence. All other numbers come from `notebooks/01_eda.ipynb` or the JogjaPulse README (see the source column)._
+_Draft 2026-11-10; restructured 2026-11-12 into the two outputs (PLAN.md section 0), with numbers from the first pass of notebooks 03–06. Every number comes from a notebook (see the source column) or the JogjaPulse README._
 
 The same slides serve two uses: the eLOK video (narration over slides) and the week 13–14 live presentation.
 
@@ -19,58 +19,64 @@ The same slides serve two uses: the eLOK video (narration over slides) and the w
 
 ## 2. Storyboard
 
+Two parts: Output 1 (slides 2–5, how far JogjaPulse can be trusted, checked against Google) and Output 2 (slides 6–9, what it can be used for). Slide 5 ends with the bridge: JogjaPulse agrees weakly to moderately with Google on one leisure proxy, while the selected station and mall cells and the tested day/night proxy show no clear agreement, so Output 2 uses timing and leisure.
+
 | # | Time | Slide title (finding) | Visual | Key numbers on slide | Source |
 |---|---|---|---|---|---|
 | 1 | 0:00–0:15 | Mobilitas Penduduk di DIY: Apa Kata Data Ponsel? | Map of DIY with 5 kabupaten outlined, the 6 team names + NIMs (README team table), course name | — | README |
-| 2 | 0:15–0:45 | Dua sumber data, empat pertanyaan | Left: two source cards (JogjaPulse: 500 m grid/day, kapanewon/hour, OD/month; Google CMR: province/day). Right: 4 RQ as short lines | 151 hari (1 Des 2021 – 30 Apr 2022); 78 kapanewon | EDA §2.2 |
-| 3 | 0:45–1:05 | Dari data mentah ke tabel analisis | Pipeline diagram: raw (Zenodo, Google) to `clean.py` to `build_features.py` to 4 processed tables to notebooks. GitHub URL in corner | 4 tabel processed | repo |
-| 4 | 1:05–1:40 | Jumlah device menyusut dan bergeser, jadi angka mentah tidak bisa dibandingkan antarwaktu | `eda_panel_decay.png` (break lines 1 Jan, 16 Feb), then appear `eda_raw_vs_share.png` | Night presence 3.634 → 644 per jam (Des → Apr); share Kota Yogyakarta 10,5% → 24,5% | EDA §3 |
-| 5 | 1:40–2:30 | RQ1: JogjaPulse dan Google bergerak searah, tapi lemah | F4: deviation series JP Gunungkidul share vs Google parks, holidays shaded. Appear F6: raw vs adjusted correlation side by side | r = 0,37 (Spearman, 149 hari, 95% CI 0,11–0,56); korelasi semu mentah −0,77; 5 dari 6 hari libur searah | `02_cross_validation` §3b, §4, §7 |
-| 6 | 2:30–3:10 | RQ2: Pusat kota dan desa punya ritme harian berbeda | F7 hour × kapanewon heatmap (start from `eda_heatmap_hour_weekday.png` if F7 isn't ready); appear F8 cluster map | Puncak 18–20, terendah 02–05; `[isi: jumlah cluster, contoh beda]` | EDA §4.1 / `03_daily_rhythm` |
-| 7 | 3:10–3:50 | RQ3: Libur panjang menggeser kehadiran ke `[isi: wilayah dari F11]` | F11 grid map holiday-minus-baseline (lattice cells removed), F12 top-10 table as small inset | 1 Jan 2022: share Gunungkidul +14% vs Sabtu normal; `[isi: sel teratas]` | PLAN §2a / `04_holiday_hotspots` |
-| 8 | 3:50–4:25 | RQ4: `[isi: asal utama]` mengirim pengunjung siang terbanyak ke Kota Yogyakarta | F13 flow map into Kota Yogyakarta, F14 top origins bar chart | `[isi: 3 asal teratas + share]`; data Des–Feb saja | `05_od_flows` |
-| 9 | 4:25–4:45 | Batasan: device bukan orang | Left: `eda_grid_lattice_artifacts.png`. Right: 3 short lines (lattice, representativeness, OD quality) | 1,2% sel memuat 8,6% presence; Gondomanan 2,2 device/penduduk | EDA §5.1, §6 |
-| 10 | 4:45–5:00 | Kesimpulan | 3 one-line findings + GitHub URL + QR code + data citation | — | — |
+| 2 | 0:15–0:40 | Dua sumber data, dua output | Left: two source cards (JogjaPulse: 500 m grid/day, kapanewon/hour, OD/month; Google CMR: province/day). Right: "Output 1: seberapa bisa dipercaya?" and "Output 2: untuk apa?" Pipeline strip and GitHub URL along the bottom | 151 hari (1 Des 2021 – 30 Apr 2022); 78 kapanewon | EDA §2.2 |
+| 3 | 0:40–1:05 | Jumlah device menyusut dan bergeser, jadi angka mentah tidak bisa dibandingkan antarwaktu | `eda_panel_decay.png` (break lines 1 Jan, 16 Feb), then appear `eda_raw_vs_share.png` | Night presence 3.634 → 644 per jam (Des → Apr); share Kota Yogyakarta 10,5% → 24,5% | EDA §3 |
+| 4 | 1:05–1:45 | Output 1: porsi Gunungkidul dan indeks taman Google searah, tapi lemah | `rq1_raw_vs_adjusted.png`, then appear `rq1_deviation_series.png` | Sel mal: mentah −0,34 → disesuaikan 0,03; Gunungkidul vs taman r = 0,37 (Spearman, 149 hari, 95% CI 0,11–0,56); searah di 5 dari 6 hari libur | `02_cross_validation` §3b, §4, §7 |
+| 5 | 1:45–2:00 | Proxy stasiun, mal, dan komuter yang kami uji tidak sejalan | `rq1_corr_heatmap.png` with the parks row highlighted; caveat chip: "7 sel stasiun, 9 sel mal, termasuk lingkungan sekitarnya" | Stasiun r = 0,19, mal r = 0,03 (CI memuat 0); ping per device-jam vs ritel r = 0,27 (intensitas, bukan kunjungan) | `02_cross_validation` §3b, §8 |
+| 6 | 2:00–2:45 | Output 2 · Ramadan: porsi aktivitas jam sahur naik dua kali lipat | `ramadan_hourly_profile.png`, then appear `ramadan_google_categories.png` | Jam 03–04: 3,7% → 8,1% dari aktivitas sehari; Google taman −25,8 poin (2021: −19,3) | `06_ramadan` §1, §2, §4 |
+| 7 | 2:45–3:20 | Output 2 · Pengunjung siang Kota Yogyakarta datang dari kapanewon tetangga | `visits_top_origins.png`, then appear `visits_origin_destination_heatmap.png` (flow map if T3 is done) | Banguntapan 38,2%, Sewon 38,1%, Kasihan 35,5%; data Des–Feb saja | `05_daytime_visits` §2, §3 |
+| 8 | 3:20–3:55 | Output 2 · Hari libur menggeser aktivitas ke malam, tapi tidak ke satu titik | Left: `rhythm_weekday_vs_dayoff.png`. Right: `holiday_kapanewon_top.png` | Hari libur di Kota: siang −2,7 poin, malam +2,2 poin; tidak ada sel 500 m yang menonjol; Kokap +46% | `03_daily_rhythm` §4, `04_holiday_hotspots` §2–§4 |
+| 9 | 3:55–4:25 | Dashboard: semua hasil bisa dijelajahi | Screen recording of `dashboard/app.py`: Ramadan tab, then pick an origin in the daytime-visits tab | — | `dashboard/app.py` |
+| 10 | 4:25–4:45 | Batasan: device bukan orang | Left: `eda_grid_lattice_artifacts.png`. Right: 3 short lines (lattice, representativeness, one Ramadan only) | 1,2% sel memuat 8,6% presence; Gondomanan 2,2 device/penduduk | EDA §5.1, §6 |
+| 11 | 4:45–5:00 | Kesimpulan | 2 one-line findings (one per output) + GitHub URL + QR code + data citation | — | — |
 
-Slide 4 is deliberately early: every later finding depends on the normalisation it explains, so the audience needs it before RQ1.
+Slide 3 comes before Output 1 because every later number depends on the normalisation it explains.
 
 ## 3. Script (Bahasa Indonesia)
 
-About 610 words. At a normal Indonesian speaking pace (120–130 words per minute) that is 4:45–5:05, so time a read-through and cut slide 3 first if it runs over.
+About 520 words of narration. At a normal Indonesian speaking pace (120–130 words per minute) that is 3:59–4:19 of speech; the rest of the 5:00 is pauses and the dashboard recording on slide 9. Time a read-through with the slides, and shorten slide 9 first if it runs over.
 
 **Slide 1 (0:00–0:15)**
 Halo, kami kelompok [nama] dari mata kuliah Rekayasa Data. Kami meneliti bagaimana penduduk Daerah Istimewa Yogyakarta bergerak, menggunakan data lokasi ponsel.
 
-**Slide 2 (0:15–0:45)**
-Kami memakai dua sumber data. Sumber utama adalah JogjaPulse, data kehadiran device ponsel yang sudah dianonimkan, untuk 151 hari dari Desember 2021 sampai April 2022. Datanya tersedia per sel 500 meter per hari, per kapanewon per jam, dan per pasangan asal–tujuan per bulan. Sumber kedua adalah Google Community Mobility Reports untuk DIY, yang kami pakai sebagai pembanding independen. Kami menjawab empat pertanyaan: apakah kedua sumber sepakat, bagaimana ritme harian tiap wilayah, apa efek hari libur, dan dari mana komuter yang masuk ke Kota Yogyakarta.
+**Slide 2 (0:15–0:40)**
+Sumber utama kami adalah JogjaPulse, data kehadiran device ponsel yang sudah dianonimkan, untuk 151 hari dari Desember 2021 sampai April 2022. Sumber kedua adalah Google Community Mobility Reports untuk DIY. Proyek kami punya dua output. Pertama, seberapa jauh JogjaPulse sejalan dengan Google. Kedua, bagaimana hasilnya dipakai untuk analisis yang lebih aplikatif.
 
-**Slide 3 (0:45–1:05)**
-Pipeline kami ditulis dalam Python. Data mentah dibersihkan, lalu digabung menjadi empat tabel analisis: harian provinsi, per jam per kapanewon, grid harian, dan asal–tujuan. Semua kode ada di GitHub.
+**Slide 3 (0:40–1:05)**
+Jumlah device yang terekam tidak stabil. Kehadiran malam turun dari sekitar 3.600 per jam di Desember menjadi sekitar 640 di April, dan porsi Kota Yogyakarta naik dari 10,5 menjadi 24,5 persen. Itu kemungkinan besar perubahan panel, bukan perilaku warga, jadi kami hanya memakai porsi, bukan angka mentah.
 
-**Slide 4 (1:05–1:40)**
-Temuan pertama justru soal datanya sendiri. Jumlah device yang terekam tidak stabil. Rata-rata kehadiran malam turun dari sekitar 3.600 per jam di Desember menjadi sekitar 640 di April. Komposisinya juga bergeser: porsi Kota Yogyakarta naik dari 10,5 persen menjadi 24,5 persen. Perubahan sebesar itu kemungkinan besar berasal dari panel, bukan perilaku warga. Karena itu kami tidak pernah membandingkan angka mentah antarwaktu. Kami memakai share, dan untuk tren kami bandingkan setiap hari dengan hari yang sama dalam dua minggu di sekitarnya.
+**Slide 4 (1:05–1:45)**
+Output pertama. Angka mentah menyesatkan karena kedua data punya tren: sel di sekitar mal dan indeks ritel Google berkorelasi minus 0,34, tetapi setelah setiap hari dibandingkan dengan hari yang sama satu dan dua minggu di sekitarnya, korelasinya tinggal 0,03. Dengan metode yang sama, porsi device di Gunungkidul berkorelasi dengan indeks taman Google sebesar 0,37: lemah sampai sedang. Pada 5 dari 6 hari libur keduanya bergerak searah; contohnya 1 Januari, porsi Gunungkidul naik sekitar 20 persen dan indeks taman Google naik 41 poin.
 
-**Slide 5 (1:40–2:30)**
-Pertanyaan pertama: apakah JogjaPulse sejalan dengan Google? Kalau memakai angka mentah, korelasinya minus 0,77, tetapi itu semu, karena kedua data sama-sama punya tren. Setelah disesuaikan dengan metode hari yang sama, porsi device di Gunungkidul berkorelasi dengan indeks taman dan wisata Google sebesar 0,37. Itu korelasi lemah sampai sedang. Kesepakatan paling jelas terlihat saat libur: pada 5 dari 6 hari libur, keduanya bergerak ke arah yang sama. Pada 1 Januari 2022, porsi Gunungkidul naik sekitar 20 persen dibanding Sabtu biasa, dan indeks taman Google naik 41 poin. Untuk stasiun dan mal, kami tidak menemukan kesepakatan yang jelas.
+**Slide 5 (1:45–2:00)**
+Untuk sel di sekitar stasiun dan mal yang kami pilih, tidak ada kesepakatan yang jelas. Ukuran siang–malam yang kami uji juga tidak menunjukkan beda hari kerja dan akhir pekan. Jadi kami memakai JogjaPulse untuk waktu aktivitas dan wisata, bukan untuk mengukur komuter.
 
-**Slide 6 (2:30–3:10)**
-Pertanyaan kedua: ritme harian. Di seluruh DIY, aktivitas paling rendah pukul dua sampai lima pagi, datar dari siang sampai sore, dan memuncak pukul enam sampai delapan malam. Kami mengelompokkan profil per jam dari 78 kapanewon menjadi [isi] kelompok. [isi: satu kalimat beda pusat kota vs desa, dan hari kerja vs akhir pekan.]
+**Slide 6 (2:00–2:45)**
+Output kedua, dimulai dari Ramadan. Kami membandingkan tiga minggu pertama Ramadan dengan tiga minggu sebelumnya. Porsi aktivitas pukul tiga sampai lima pagi naik dari 3,7 menjadi 8,1 persen, mulai tepat 2 dan 3 April. Ini kemungkinan waktu sahur, dan terlihat di semua kabupaten. Google menunjukkan kunjungan ke taman turun 26 poin, dan pola yang sama muncul pada Ramadan 2021. JogjaPulse sejalan: porsi Gunungkidul turun 30 persen.
 
-**Slide 7 (3:10–3:50)**
-Pertanyaan ketiga: hari libur. Kami membandingkan share setiap sel grid saat libur dengan median hari yang sama dua minggu sebelumnya. Sel yang koordinatnya kemungkinan dibulatkan sudah kami buang. [isi: sel atau wilayah yang paling naik saat Nataru dan Imlek, dengan angkanya.]
+**Slide 7 (2:45–3:20)**
+Kedua, pengunjung siang ke Kota Yogyakarta. Dari data asal–tujuan Desember sampai Februari, kami menghitung porsi kunjungan siang ke luar kapanewon asal yang menuju Kota. Tertinggi adalah tetangga langsung Kota: Banguntapan 38 persen, Sewon 38 persen, dan Kasihan 36 persen. Tujuan terbanyak adalah Umbulharjo dan Gondokusuman. Data ini tidak membedakan kerja dan rekreasi.
 
-**Slide 8 (3:50–4:25)**
-Pertanyaan keempat: komuter. Dari data asal–tujuan Desember sampai Februari, kami menghitung porsi device dari tiap kapanewon asal yang terlihat di Kota Yogyakarta. [isi: tiga asal teratas dan porsinya.] Data Maret dan April tidak kami pakai karena kualitasnya ditandai menurun.
+**Slide 8 (3:20–3:55)**
+Ketiga, ritme harian dan hari libur. Pada hari libur, porsi aktivitas bergeser dari siang ke malam, paling besar di Kota: siang turun 2,7 poin, malam naik 2,2 poin. Kami juga mencari sel 500 meter yang ramai saat libur, tetapi tidak ada yang melebihi akhir pekan biasa. Di tingkat kapanewon, Kokap di Kulon Progo naik di keenam hari libur.
 
-**Slide 9 (4:25–4:45)**
-Ada beberapa batasan. Device bukan orang, dan sampelnya lebih banyak di kota. Di Gondomanan ada 2,2 device "rumah" per penduduk. Selain itu, 1,2 persen sel grid memuat 8,6 persen kehadiran, kemungkinan karena koordinat yang dibulatkan, jadi sel itu kami keluarkan.
+**Slide 9 (3:55–4:25)**
+Semua hasil ini kami kemas dalam dashboard. Pengguna bisa memilih wilayah dan melihat ritme hariannya, perubahan saat Ramadan, atau dari mana pengunjung sebuah kapanewon datang.
 
-**Slide 10 (4:45–5:00)**
-Kesimpulannya: data ponsel bisa menunjukkan ritme harian, efek libur, dan arus komuter di DIY, asalkan perubahan panel dikoreksi dulu. Kode dan data ada di GitHub kami. Terima kasih.
+**Slide 10 (4:25–4:45)**
+Ada beberapa batasan. Device bukan orang, dan sampelnya lebih banyak di kota. Di Gondomanan ada 2,2 device "rumah" per penduduk. Sebagian kecil sel grid kemungkinan berisi koordinat yang dibulatkan, jadi kami keluarkan. Dan JogjaPulse hanya mencakup satu Ramadan.
+
+**Slide 11 (4:45–5:00)**
+Kesimpulannya: JogjaPulse sejalan secara lemah sampai sedang dengan Google untuk aktivitas wisata, dan dengan koreksi panel bisa menunjukkan pergeseran jam saat Ramadan serta asal pengunjung Kota. Kode dan dashboard ada di GitHub kami. Terima kasih.
 
 ## 4. Before recording
 
-- Replace every `[isi: ...]` with a number from notebooks 02–05, or cut the sentence.
-- Check the 1 Jan Google parks value in `02_cross_validation.ipynb` before saying it out loud (PLAN gives +40 from the quick check only).
+- Recheck the Output 2 numbers against notebooks 03–06 if anything in the pipeline is rerun.
+- Record the dashboard segment (slide 9) from a fresh `streamlit run dashboard/app.py`.
 - Time one full read-through; target 4:50 to leave room for pauses.
 - Run the anti-slop checklist (`docs/anti_slop_guidelines.md` §6) on the slide text.

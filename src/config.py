@@ -11,6 +11,7 @@ PROCESSED = ROOT / "data" / "processed"
 FIGURES = ROOT / "reports" / "figures"
 
 CALENDAR_CSV = RAW_EXT / "calendar_2021_2022.csv"
+PLACES_CSV = RAW_EXT / "places_osm.csv"
 
 STUDY_START = pd.Timestamp("2021-12-01")
 STUDY_END = pd.Timestamp("2022-04-30")
@@ -33,6 +34,10 @@ HALF_CELL_DEG = 0.00226  # about 250 m at this latitude
 
 # OD months flagged reduced_quality in the source; analyses use the other months.
 OD_GOOD_MONTHS = ["2021-12", "2022-01", "2022-02"]
+
+CITY_KAB_CODE = "34.71"  # Kota Yogyakarta
+
+RAMADAN_WINDOW_DAYS = 21  # compare the first 3 weeks of Ramadan with the 3 weeks before
 
 
 def panel_segment(dates: pd.Series) -> pd.Series:

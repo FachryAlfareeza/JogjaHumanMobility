@@ -1,3 +1,5 @@
+> **Arsip rencana lama, bukan acuan hasil final.** Angka, gambar, dan perbandingan Ramadan di bawah telah digantikan. Gunakan [README bagian grafik presentasi](../README.md#2-grafik-yang-ditampilkan-saat-presentasi) dan notebook 06/07 untuk hasil yang berlaku. Slide/video belum diperbarui pada tahap ini.
+
 # Slide plan and script (5 minutes)
 
 _Draft 2026-11-10; restructured 2026-11-12 into the two outputs (PLAN.md section 0), with numbers from the first pass of notebooks 03–06. Every number comes from a notebook (see the source column) or the JogjaPulse README._

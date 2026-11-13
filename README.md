@@ -168,7 +168,7 @@ streamlit run dashboard/app.py
 
 Untuk penyiapan data dari awal, skrip yang tersedia adalah `src/download_data.py` (JogjaPulse), `src/fetch_google_mobility.py` (Google), dan `src/fetch_places.py` (koordinat output 1). Berkas besar JogjaPulse/Google dan tabel olahan utama dihasilkan secara lokal. Repo menyertakan kode, kalender/koordinat pendukung yang sudah ada, ekspor grafik, serta tabel bukti ringkas.
 
-Definisi kolom: [data dictionary](docs/data_dictionary.md). Pemeriksaan mencakup 13 tes, pencocokan hasil dengan CSV sumber, dan pemeriksaan kelengkapan data. `ramadan_provenance.json` serta `data/processed/daytime_visits/quality.json` mencatat jejak input. [PLAN.md](PLAN.md) menyimpan riwayat dan rencana proyek yang lebih luas; fokus narasi presentasi branch ini mengikuti README ini.
+Definisi kolom: [data dictionary](docs/data_dictionary.md). Pemeriksaan mencakup 17 tes, pencocokan hasil dengan CSV sumber, dan pemeriksaan kelengkapan data. `ramadan_provenance.json` serta `data/processed/daytime_visits/quality.json` mencatat jejak input. [PLAN.md](PLAN.md) menyimpan riwayat dan rencana proyek yang lebih luas; fokus narasi presentasi branch ini mengikuti README ini.
 
 ## Anggota kelompok
 

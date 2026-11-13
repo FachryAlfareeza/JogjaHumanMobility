@@ -18,7 +18,8 @@ sys.path.insert(0, str(ROOT / "src"))
 from config import (CALENDAR_CSV, CITY_KAB_CODE, GOOGLE_CATEGORIES, KAB_ORDER, PROCESSED,  # noqa: E402
                     RAW_EXT)
 from applied import (city_visits, kapanewon_profiles, pooled_profile, ramadan_windows,  # noqa: E402
-                     ranked_origins, shifts, ramadan_analysis, RAMADAN_FOCUS_CODES, RAMADAN_MAIN_CATEGORIES)
+                     ranked_origins, shifts, ramadan_analysis, RAMADAN_FOCUS_CODES, RAMADAN_MAIN_CATEGORIES,
+                     complete_pair_rates)
 
 JP_COL, G_COL, GREY = "#0F766E", "#C2410C", "#9CA3AF"
 MONTHS = {"2021-12": "Des 2021", "2022-01": "Jan 2022", "2022-02": "Feb 2022"}
@@ -173,19 +174,27 @@ with tab_visits:
     month = st.selectbox("Bulan", ["Rata-rata"] + list(MONTHS), format_func=lambda m: MONTHS.get(m, m))
     odm = od if month == "Rata-rata" else od[od.month == month]
     n_months = odm.month.nunique()
-    mode = st.radio("Pertanyaan", ["Dari mana pengunjung Kota Yogyakarta datang?", "Ke mana warga sebuah kapanewon pergi?",
-                                   "Siapa yang mengunjungi sebuah kapanewon?"])
+    mode = st.radio("Pertanyaan", ["Dari mana perangkat yang tercatat di Kota Yogyakarta berasal?",
+                                   "Ke mana perangkat berumah di sebuah kapanewon tercatat?",
+                                   "Perangkat asal mana yang tercatat di sebuah kapanewon?"])
     ranked = ranked_origins(od)
     if mode.startswith("Dari mana"):
         cv = city_visits(odm).reset_index()
-        res = (cv[cv.origin_code.isin(ranked) & ~cv.origin_code.str.startswith(CITY_KAB_CODE)]
-               .groupby("origin_code")[["city_share", "city_rate"]].mean().join(names)
-               .sort_values("city_share", ascending=False).head(20))
+        candidates = cv[cv.origin_code.isin(ranked) & ~cv.origin_code.str.startswith(CITY_KAB_CODE)]
+        grouped = candidates.groupby("origin_code")
+        all_means = grouped[["city_share", "city_rate"]].mean()
+        complete = grouped.city_share.count().eq(n_months)
+        eligible = all_means.loc[complete]
+        res = eligible.join(names).sort_values("city_share", ascending=False).head(20)
         fig = px.bar(res.iloc[::-1], x="city_share", y="label", orientation="h", color="kab_kota",
-                     labels={"city_share": "Porsi kunjungan ke luar kapanewon asal yang menuju Kota (%)", "label": "",
+                     labels={"city_share": "Porsi hubungan perangkat–tujuan terbit yang menuju Kota (%)", "label": "",
                              "kab_kota": "Kabupaten asal"})
         fig.update_layout(height=600, margin=dict(t=20), yaxis=dict(categoryorder="total ascending"))
         st.plotly_chart(fig, use_container_width=True)
+        st.caption(f"Porsi memakai hitungan hubungan perangkat–tujuan yang diterbitkan, bukan pengunjung unik atau perjalanan. "
+                   f"Satu perangkat dapat tercatat di beberapa tujuan. {int((~complete).sum())} asal dikeluarkan karena "
+                   f"tidak memiliki hitungan Kota terbit pada seluruh {n_months} bulan yang dipilih. "
+                   "Tujuan yang disembunyikan tidak direkonstruksi; data tidak terbit tetap tidak diketahui.")
     else:
         outbound = mode.startswith("Ke mana")
         pick = st.selectbox("Kapanewon", list(names.index), format_func=lambda c: names.label[c],
@@ -194,7 +203,8 @@ with tab_visits:
         sub = odm[(odm[key] == pick) & ~odm.is_intra]
         if not outbound:
             sub = sub[sub.origin_code.isin(ranked)]
-        res = (sub.groupby(other).visit_rate.sum().div(n_months) * 100).sort_values(ascending=False).head(15)
+        rates = complete_pair_rates(sub, other, odm.month.unique())
+        res = (rates.dropna() * 100).sort_values(ascending=False).head(15)
         res = res.to_frame("rate").join(names, how="left")
         xlab = ("% device rumah di kapanewon ini yang terlihat di tujuan (per bulan)" if outbound
                 else "% device rumah di kapanewon asal yang terlihat di sini (per bulan)")
@@ -202,6 +212,9 @@ with tab_visits:
                      labels={"rate": xlab, "label": "", "kab_kota": "Kabupaten"})
         fig.update_layout(height=520, margin=dict(t=20), yaxis=dict(categoryorder="total ascending"))
         st.plotly_chart(fig, use_container_width=True)
+        st.caption(f"Hanya pasangan terbit pada seluruh {n_months} bulan yang dipilih. "
+                   f"{int(rates.isna().sum())} pasangan dengan sebagian bulan tidak terbit dikeluarkan; "
+                   "bulan tidak terbit bukan nol. Rata-rata berbobot sama per bulan, bukan proporsi gabungan tiga bulan notebook 07.")
         if not outbound:
             st.caption("Asal dengan < 100 device rumah di salah satu bulan tidak ditampilkan.")
 

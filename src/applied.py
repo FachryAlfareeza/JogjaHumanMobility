@@ -78,22 +78,41 @@ def shifts(share: pd.DataFrame, daily: pd.DataFrame, relative: bool = False,
 
 
 def city_visits(od: pd.DataFrame) -> pd.DataFrame:
-    """Per origin and month: home devices, city visits, all away visits, city share and rate.
+    """Per origin/month: counts of published device-destination links and their shares.
 
     city_rate  = sum of visit_rate over the city kapanewon (city kapanewon visited per home device)
-    city_share = city visits / all visits outside the origin (%), which removes differences in how
-                 much an origin's devices move at all, and the month-to-month rise in visit rates.
+    city_share = published city links / published links outside the origin (%).
+    A device can occur in several destinations. Entirely unpublished city counts
+    remain unknown; neither this share nor city_rate counts unique city visitors.
     """
     away = od[~od.is_intra]
     homed = od.drop_duplicates(["month", "origin_code"]).set_index(["origin_code", "month"]).n_homed_maids
     all_away = away.groupby(["origin_code", "month"]).n_maids.sum()
     city = (away[away.dest_kab_code == CITY_KAB_CODE].groupby(["origin_code", "month"]).n_maids.sum()
-            .reindex(all_away.index, fill_value=0))
+            .reindex(all_away.index))
     out = pd.DataFrame({"home_devices": homed.reindex(all_away.index), "city_visits": city,
                         "away_visits": all_away})
     out["city_rate"] = out.city_visits / out.home_devices
     out["city_share"] = out.city_visits / out.away_visits * 100
     return out
+
+
+def complete_pair_rates(od: pd.DataFrame, other: str, months) -> pd.Series:
+    """Mean monthly pair rate; unknown unless every requested month is published.
+
+    Input is already restricted to one fixed origin or destination. Missing
+    pair-months are never included as zero in an average over requested months.
+    """
+    months = list(dict.fromkeys(str(m) for m in months))
+    if not months:
+        raise ValueError("Need at least one requested month")
+    selected = od.loc[od.month.astype(str).isin(months)].copy()
+    selected["month"] = selected.month.astype(str)
+    if selected.duplicated([other, "month"]).any():
+        raise ValueError("Duplicate pair-month in rate comparison")
+    grouped = selected.groupby(other)
+    published = selected.loc[selected.visit_rate.notna()].groupby(other).month.nunique()
+    return (grouped.visit_rate.sum(min_count=1) / len(months)).where(published.eq(len(months)))
 
 
 def ranked_origins(od: pd.DataFrame) -> pd.Index:

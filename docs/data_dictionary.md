@@ -106,6 +106,15 @@ destinations. The population is sampled home-assigned MAIDs, not residents.
 `quality.json` records the scope, grain checks, missingness handling, code-name
 collision retention, and SHA-256 hashes of the three input files.
 
+Notebook `07_daytime_visit_pairs.ipynb` exports
+`reports/tables/rq4_daytime_story_evidence.csv`: the 12 published pair-month rows
+for Banguntapan/Depok and Umbulharjo/Gondokusuman. It retains the pair-month
+columns above and adds `destination_rank_in_origin_month`, the count rank of
+the destination among all published city destinations for that origin and month
+(minimum rank for ties). This differs from `rank_count_within_dest_month`, which
+ranks origins for a fixed destination. The focal origins/destinations come from
+the two largest complete pairs by mean monthly count, not the largest rate gap.
+
 ## Interim tables (`data/interim/`)
 
 These are typed copies of the raw files, with names normalised and checked: `hourly_kapanewon`, `grid_daily`, `grid_cells`, `od_visits`, `od_homes`, `population`, `night_validation`, `google_diy`, `calendar`, plus `kapanewon_crosswalk.csv` (78 codes; `name_is_unique` is false for the two JETIS rows).

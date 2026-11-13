@@ -12,7 +12,7 @@ The project has two outputs:
 Headline results so far (details and caveats in [PLAN.md](PLAN.md) sections 2 and 3):
 
 - Output 1: JogjaPulse's Gunungkidul share and Google's parks index agree weakly to moderately once both are compared with the same weekday (Spearman r = 0.37, 95% CI 0.11–0.56); there is no clear agreement for stations or malls.
-- Output 2: in the first three weeks of Ramadan 1443, the share of the day's device-hours at 03:00–04:59 rises from 3.7% to 8.1%. Kapanewon bordering Kota Yogyakarta send the largest share of their daytime visits into the city (Banguntapan 38.2%, Sewon 38.1%, Kasihan 35.5%).
+- Output 2: in the first three weeks of Ramadan 1443, the share of the day's device-hours at 03:00–04:59 rises from 3.7% to 8.1%. In the pair-level daytime analysis, Banguntapan is observed more in Umbulharjo (20.5%) than Gondokusuman (7.3%), while Depok shows the reverse (5.3% and 10.0%). These are weighted device-month proportions of each origin's home-assigned sample for December–February; the destination ordering holds in each month.
 
 - Plan, research questions and timeline: [PLAN.md](PLAN.md)
 - Table and column definitions: [docs/data_dictionary.md](docs/data_dictionary.md)
@@ -53,10 +53,16 @@ python src/analyze_daytime_visits.py
 python -m unittest discover -s tests -v
 ```
 
-Open `notebooks/07_daytime_visit_pairs.ipynb` and run it top-to-bottom to produce three
-`reports/figures/rq4_*.png` figures. The notebook compares external home origins
-with individual destinations inside Kota Yogyakarta for December–February.
-It shows volume, origin-based visit rates, and stability across months.
+Open `notebooks/07_daytime_visit_pairs.ipynb` and run it top-to-bottom. Its main
+question is whether the two origins with the largest pair-level connections
+have different destination patterns, and whether the ordering holds each month.
+The main figure is `reports/figures/rq4_destination_pattern.png`; three supporting
+figures remain in the appendix. The scope is external home origins and individual
+destinations inside Kota Yogyakarta for December–February, 08:00–17:59 WIB.
+
+The short Indonesian narrative is in [docs/daytime_visit_insights.md](docs/daytime_visit_insights.md).
+It separates observed results, possible explanations, and the use of the pairs
+to focus later observation or surveys.
 
 Unpublished pair-months remain unknown, never zero. Main three-month comparisons
 use pairs published in all three months. Rates pool the pair counts and matching
@@ -66,7 +72,10 @@ unique visitors to the whole city nor trip/commuter counts.
 
 Generated tables are in `data/processed/daytime_visits/`; input hashes and quality
 checks are in `quality.json`. A compact top-pair export is saved to
-`reports/tables/rq4_top_pairs.csv`. This pair-level analysis complements the
+`reports/tables/rq4_top_pairs.csv`. The notebook also exports the 12 focal
+pair-month counts, denominators, rates and within-origin destination ranks to
+`reports/tables/rq4_daytime_story_evidence.csv`, and checks their counts and
+denominators directly against the raw source CSVs. This pair-level analysis complements the
 origin-level city-share analysis in `notebooks/05_daytime_visits.ipynb`. The
 existing Ramadan notebook (`06_ramadan.ipynb`) and dashboard are unchanged.
 

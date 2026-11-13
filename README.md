@@ -7,7 +7,7 @@ The project has two outputs:
 | Output | Question | Where |
 |---|---|---|
 | 1. How the two datasets relate | Does JogjaPulse (aggregated phone-device presence) move with Google's mobility reports, and how far can it be trusted? | `notebooks/01_eda.ipynb`, `notebooks/02_cross_validation.ipynb` |
-| 2. Applied analytics | What does JogjaPulse show about Ramadan, daytime visits to the city, daily rhythm and holidays? | `notebooks/03`–`06`, dashboard `dashboard/app.py` |
+| 2. Applied analytics | What does JogjaPulse show about Ramadan, daytime visits to the city, daily rhythm and holidays? | `notebooks/03`–`07`, dashboard `dashboard/app.py` |
 
 Headline results so far (details and caveats in [PLAN.md](PLAN.md) sections 2 and 3):
 
@@ -44,13 +44,39 @@ streamlit run dashboard/app.py       # Output 2 dashboard, opens in the browser
 
 `clean.py` and `build_features.py` stop with an error if a row count, key, join or share total doesn't match what's expected.
 
+### Daytime visits: output 2, first analysis
+
+After the pipeline above, run:
+
+```bash
+python src/analyze_daytime_visits.py
+python -m unittest discover -s tests -v
+```
+
+Open `notebooks/07_daytime_visit_pairs.ipynb` and run it top-to-bottom to produce three
+`reports/figures/rq4_*.png` figures. The notebook compares external home origins
+with individual destinations inside Kota Yogyakarta for December–February.
+It shows volume, origin-based visit rates, and stability across months.
+
+Unpublished pair-months remain unknown, never zero. Main three-month comparisons
+use pairs published in all three months. Rates pool the pair counts and matching
+origin-device-month denominators; they are not percentages of residents.
+Devices may appear in multiple destinations, so these results are neither
+unique visitors to the whole city nor trip/commuter counts.
+
+Generated tables are in `data/processed/daytime_visits/`; input hashes and quality
+checks are in `quality.json`. A compact top-pair export is saved to
+`reports/tables/rq4_top_pairs.csv`. This pair-level analysis complements the
+origin-level city-share analysis in `notebooks/05_daytime_visits.ipynb`. The
+existing Ramadan notebook (`06_ramadan.ipynb`) and dashboard are unchanged.
+
 ## Structure
 
 ```
 data/raw/          source files (not committed, except the holiday calendar)
 data/interim/      cleaned tables (generated)
 data/processed/    analysis tables (generated)
-notebooks/         01-02 Output 1 (EDA, cross-validation); 03-06 Output 2 (rhythm, holidays, daytime visits, Ramadan)
+notebooks/         01-02 Output 1; 03-06 Output 2; 07 adds pair-level daytime visitation detail
 src/               pipeline scripts; config.py holds shared paths and constants;
                    applied.py holds the Output 2 rules used by notebooks 03-06 and the dashboard
 dashboard/         Streamlit app for Output 2

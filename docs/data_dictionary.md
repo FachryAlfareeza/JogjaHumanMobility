@@ -66,6 +66,46 @@ These appear in all processed tables except `od_dec_feb`.
 
 March and April are excluded because the source flags them `reduced_quality`.
 
+## Daytime visitation analysis (`data/processed/daytime_visits/`)
+
+Built by `src/analyze_daytime_visits.py`. Scope: home origins outside Kota
+Yogyakarta to each individual destination inside Kota; Dec 2021–Feb 2022.
+
+`pair_month.parquet` has 2,688 rows (64 origins × 14 destinations × 3 months).
+Keys are `month`, `origin_code`, `dest_code`. Names are descriptive, never keys.
+
+| Column | Meaning |
+|---|---|
+| `published` | Whether the pair-month has a published source count |
+| `n_maids` | Published pair-month device count; nullable integer, unknown when unpublished |
+| `n_homed_maids` | All devices assigned a monthly home to that origin; matched by origin code and month |
+| `visit_rate` | `n_maids / n_homed_maids`; null when the count is not published |
+| `rank_count_month` | Count rank among published external-origin→city-destination pairs that month; ties use minimum rank |
+| `rank_count_within_dest_month` | Count rank among external origins for the same destination and month |
+| `top3_month` | Minimum rank ≤ 3; ties at the boundary are included |
+
+`pair_summary.parquet` has 896 rows (64 × 14 pairs).
+
+| Column | Meaning |
+|---|---|
+| `months_published` | Number of months with a published count, from 0 to 3 |
+| `observed_device_months` | Sum of published counts within this pair; null when no month is published; not unique devices over three months |
+| `origin_device_months` | Sum of the matching monthly origin-home denominators within this pair |
+| `complete_months` | All three pair-month counts are published |
+| `mean_devices_per_month` | Sum of pair counts / 3, only when complete; otherwise null |
+| `pooled_visit_rate` | Sum of pair counts / sum of corresponding origin-home counts, only when complete |
+| `min_monthly_rate`, `max_monthly_rate` | Observed monthly range, not a confidence interval |
+| `top3_months` | Number of months where this pair is in the count-based top-3 group |
+
+There are 1,361 published and 1,327 unpublished pair-months; 329 pairs are
+published in all three months. This is publication coverage of a possible-pair
+grid, not a fraction of all visits recovered. Do not sum counts or rates across
+destinations to estimate unique city visitors. Devices can occur at multiple
+destinations. The population is sampled home-assigned MAIDs, not residents.
+
+`quality.json` records the scope, grain checks, missingness handling, code-name
+collision retention, and SHA-256 hashes of the three input files.
+
 ## Interim tables (`data/interim/`)
 
 These are typed copies of the raw files, with names normalised and checked: `hourly_kapanewon`, `grid_daily`, `grid_cells`, `od_visits`, `od_homes`, `population`, `night_validation`, `google_diy`, `calendar`, plus `kapanewon_crosswalk.csv` (78 codes; `name_is_unique` is false for the two JETIS rows).

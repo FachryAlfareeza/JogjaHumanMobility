@@ -37,10 +37,6 @@ OD_GOOD_MONTHS = ["2021-12", "2022-01", "2022-02"]
 
 CITY_KAB_CODE = "34.71"  # Kota Yogyakarta
 
-# Ramadan 1442 started on 13 Apr 2021 for both the government (sidang isbat 12 Apr 2021,
-# setkab.go.id) and Muhammadiyah. Used only to compare Google's 2021 Ramadan with 2022.
-# The 2022 dates are in CALENDAR_CSV.
-RAMADAN_2021_START = pd.Timestamp("2021-04-13")
 RAMADAN_WINDOW_DAYS = 21  # compare the first 3 weeks of Ramadan with the 3 weeks before
 
 

@@ -16,9 +16,9 @@ import streamlit as st
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from config import (CALENDAR_CSV, CITY_KAB_CODE, GOOGLE_CATEGORIES, KAB_ORDER, PROCESSED,  # noqa: E402
-                    RAMADAN_2021_START, RAW_EXT)
+                    RAW_EXT)
 from applied import (city_visits, kapanewon_profiles, pooled_profile, ramadan_windows,  # noqa: E402
-                     ranked_origins, shifts)
+                     ranked_origins, shifts, ramadan_analysis, RAMADAN_FOCUS_CODES, RAMADAN_MAIN_CATEGORIES)
 
 JP_COL, G_COL, GREY = "#0F766E", "#C2410C", "#9CA3AF"
 MONTHS = {"2021-12": "Des 2021", "2022-01": "Jan 2022", "2022-02": "Feb 2022"}
@@ -127,45 +127,42 @@ with tab_rhythm:
 
 # ---------------------------------------------------------------- Ramadan (notebook 06)
 with tab_ramadan:
-    st.subheader("Ramadan 1443: jam aktivitas bergeser ke waktu sahur")
+    st.subheader("Ramadan: jam kehadiran dan kategori tempat")
     start = cal.loc[cal.name.str.contains("government"), "date"].iloc[0]
-    before, during = ramadan_windows(start)
-    hol = daily.index[daily.is_holiday]
-    before, during = before.difference(hol), during.difference(hol)
-    st.write(f"Tiga minggu pertama Ramadan ({during[0]:%d %b} - {during[-1]:%d %b} 2022) dibanding tiga minggu "
-             f"sebelumnya ({before[0]:%d %b} - {before[-1]:%d %b}). Hari libur tidak dihitung.")
-    unit = st.selectbox("Wilayah", ["DIY"] + KAB_ORDER, format_func=lambda k: k.title() if k != "DIY" else k)
-    prof = pooled_profile(hourly if unit == "DIY" else hourly[hourly.kab_kota == unit])
-    pb, pdur = prof.loc[before].mean(), prof.loc[during].mean()
-    c1, c2 = st.columns([3, 2])
-    with c1:
-        st.plotly_chart(hour_chart({"Sebelum Ramadan": pb, "Ramadan": pdur},
-                                   {"Sebelum Ramadan": GREY, "Ramadan": JP_COL}), use_container_width=True)
-    with c2:
-        sahur = prof[[3, 4]].sum(axis=1).loc["2022-03-01":]
-        fig = px.line(x=sahur.index, y=sahur.values, labels={"x": "", "y": "Porsi jam 03:00-04:59 (%)"})
-        fig.update_traces(line_color=JP_COL)
-        fig.add_vline(x=start, line_dash="dash", line_color="black")
-        fig.update_layout(title="Porsi jam 03-04 per hari", height=430, margin=dict(t=50, b=40))
+    result = ramadan_analysis(hourly, daily, start)
+    focal = result["summary"].set_index("kapanewon_code").loc[list(RAMADAN_FOCUS_CODES)].reset_index()
+    st.write("12 Maret–1 April dibanding 3–23 April 2022, masing-masing 21 hari. "
+             "Banguntapan dan Depok dipilih dari cerita kunjungan siang; data di sini mencakup semua "
+             "perangkat yang hadir, bukan hanya perangkat berumah di sana. Hari libur tetap masuk.")
+    left, right = st.columns(2)
+    with left:
+        plot = focal.melt(id_vars="kapanewon", value_vars=["before", "during"], var_name="Periode", value_name="Porsi (%)")
+        plot["Periode"] = plot.Periode.map({"before":"Sebelum", "during":"Selama"})
+        fig = px.bar(plot, x="kapanewon", y="Porsi (%)", color="Periode", barmode="group",
+                     color_discrete_map={"Sebelum":GREY,"Selama":JP_COL},
+                     labels={"kapanewon":"Wilayah"}, title="JogjaPulse: porsi catatan pukul 03.00–04.59")
         st.plotly_chart(fig, use_container_width=True)
-    m1, m2 = st.columns(2)
-    m1.metric("Porsi jam 03-04, sebelum", f"{pb[[3, 4]].sum():.1f}%")
-    m2.metric("Porsi jam 03-04, Ramadan", f"{pdur[[3, 4]].sum():.1f}%", f"{pdur[[3, 4]].sum() - pb[[3, 4]].sum():+.1f} poin")
-
-    st.markdown("**Google: ke mana orang pergi saat Ramadan, 2022 dan 2021**")
-    rows = {}
-    for year, s0, h in [(2021, RAMADAN_2021_START, pd.to_datetime(["2021-04-02"])), (2022, start, hol)]:
-        b, d = ramadan_windows(s0)
-        b, d = b.difference(h), d.difference(h)
-        rows[f"Ramadan {year}"] = google.loc[d].mean() - google.loc[b].mean()
-    gt = pd.DataFrame(rows).reindex(GOOGLE_CATEGORIES)
-    gt.index = [c.replace("_", " ").capitalize() for c in gt.index]
-    fig = px.bar(gt, barmode="group", orientation="h", color_discrete_sequence=["#E8A584", G_COL],
-                 labels={"value": "Perubahan (poin indeks Google)", "index": "", "variable": ""})
-    fig.update_layout(height=380, margin=dict(t=20, b=40))
-    st.plotly_chart(fig, use_container_width=True)
-    st.caption("Indeks Google = % terhadap baseline hari yang sama di Jan-Feb 2020, tingkat provinsi. "
-               "Placebo tiga minggu lebih awal bergerak ke arah sebaliknya (notebook 06 bagian 4b).")
+        st.caption("Rata-rata porsi harian, hanya wilayah dengan 24 jam lengkap pada seluruh 42 hari. "
+                   "Bukan jumlah orang atau perjalanan.")
+    with right:
+        gt = result["google"].set_index("category").loc[list(RAMADAN_MAIN_CATEGORIES)].reset_index()
+        gt["Kategori"] = gt.category.map({"parks":"Taman", "retail_and_recreation":"Retail/rekreasi", "residential":"Waktu di rumah"})
+        fig = px.bar(gt, y="Kategori", x="change_pp", orientation="h", color_discrete_sequence=[G_COL],
+                     labels={"change_pp":"Selama − sebelum (poin indeks)"}, title="Google: seluruh DIY")
+        st.plotly_chart(fig, use_container_width=True)
+        st.caption("Indeks terhadap baseline hari sejenis Jan–Feb 2020; residential mengukur waktu di rumah. "
+                   "Selisih poin indeks bukan % penurunan jumlah kunjungan antarperiode.")
+    st.write("Pada dua wilayah contoh, porsi pencatatan dini hari lebih tinggi. Google memperlihatkan "
+             "indeks taman dan retail/rekreasi lebih rendah, serta waktu di rumah lebih tinggi. "
+             "Keduanya memberi sudut pandang berbeda, bukan perjalanan orang yang sama.")
+    st.info("Porsi dini hari sudah naik sebelum Ramadan. Sahur dan penyesuaian rutinitas adalah hipotesis, "
+            "bukan sebab yang terbukti; sampel dan pencatatan aplikasi juga dapat berubah.")
+    with st.expander("Bukti dan batas interpretasi"):
+        st.dataframe(focal[["kapanewon","before","during","change_pp"]].round(2))
+        st.dataframe(result["google"].round(2))
+        st.dataframe(result["weekly"].round(2))
+        st.caption("Kegunaan: memilih jam dan kategori tempat untuk pengamatan lebih lanjut. "
+                   "Bukan dasar kebutuhan transportasi atau peluang usaha; bukan seluruh Ramadan/Lebaran.")
 
 # ---------------------------------------------------------------- Kunjungan siang (notebook 05)
 with tab_visits:

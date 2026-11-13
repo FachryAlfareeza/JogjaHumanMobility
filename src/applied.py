@@ -5,7 +5,7 @@ Each function holds one rule, so the notebooks and dashboard/app.py give the sam
 import numpy as np
 import pandas as pd
 
-from config import CITY_KAB_CODE, RAMADAN_WINDOW_DAYS
+from config import CITY_KAB_CODE, RAMADAN_WINDOW_DAYS, GOOGLE_CATEGORIES
 
 MIN_COMPLETE_DAYS = 20     # complete 24-hour days a kapanewon needs for a stable profile
 MIN_HOMED = 100            # home devices an OD origin needs in every month to be ranked
@@ -112,3 +112,83 @@ def ramadan_windows(start: pd.Timestamp, days: int = RAMADAN_WINDOW_DAYS):
     before = pd.date_range(end=start - pd.Timedelta(days=2), periods=days)
     during = pd.date_range(start=start, periods=days)
     return before, during
+
+
+RAMADAN_FOCUS_CODES = ("34.02.12", "34.04.07")  # chosen in the daytime analysis
+RAMADAN_MAIN_CATEGORIES = ("parks", "retail_and_recreation", "residential")
+RAMADAN_HOURS = (3, 4)
+
+
+def ramadan_analysis(hourly, daily, start, hours=RAMADAN_HOURS,
+                     exclude_paired_fridays=False, focus_codes=RAMADAN_FOCUS_CODES):
+    """Matched 21-day periods; complete-window areas; equal weight per day.
+
+    daily is indexed by date and contains g_<Google category>. No zero filling.
+    Returns evidence tables shared by notebook 06 and the Ramadan dashboard tab.
+    The midnight-excluded share is a diagnostic, not the primary denominator.
+    """
+    before, during = ramadan_windows(pd.Timestamp(start))
+    if exclude_paired_fridays:
+        # Same ordinal Friday in each period; preserve identical weekday composition.
+        before = before.difference(pd.to_datetime(["2022-03-25"]))
+        during = during.difference(pd.to_datetime(["2022-04-15"]))
+    if pd.Series(before.day_of_week).value_counts().to_dict() != pd.Series(during.day_of_week).value_counts().to_dict():
+        raise ValueError("Weekday composition differs")
+    hours = tuple(hours)
+    if not hours or len(set(hours)) != len(hours) or not set(hours).issubset(range(3, 24)):
+        raise ValueError("Hours must be distinct and outside the midnight diagnostic block")
+    selected_dates = before.union(during)
+    x = hourly.loc[hourly.date.isin(selected_dates)].copy()
+    keys = ["kapanewon_code", "date", "hour"]
+    if x[keys].isna().any().any() or x.duplicated(keys).any():
+        raise ValueError("Missing or duplicate hourly keys")
+    if (x.hour % 1 != 0).any() or not x.hour.between(0, 23).all():
+        raise ValueError("Hours outside 0..23")
+    if x.n_maids.isna().any() or (x.n_maids <= 0).any():
+        raise ValueError("Presence counts must be positive")
+    names = hourly[["kapanewon_code", "kapanewon", "kab_kota"]].drop_duplicates()
+    if names.kapanewon_code.duplicated().any():
+        raise ValueError("Conflicting code/name mapping")
+    counts = x.groupby(["kapanewon_code", "date"]).size().unstack("date")
+    counts = counts.reindex(index=names.kapanewon_code, columns=selected_dates)
+    coverage = names.set_index("kapanewon_code").copy()
+    for label, dates in [("before", before), ("during", during)]:
+        coverage[f"complete_days_{label}"] = counts[dates].eq(24).sum(axis=1)
+        coverage[f"expected_days_{label}"] = len(dates)
+    coverage["eligible"] = (counts.eq(24).all(axis=1))
+    if not coverage.reindex(list(focus_codes)).eligible.fillna(False).all():
+        raise ValueError("A focal area lacks a complete 24-hour observation window")
+    x = x[x.kapanewon_code.isin(coverage.index[coverage.eligible])].copy()
+    x["period"] = np.where(x.date.isin(before), "before", "during")
+    x["day_total"] = x.groupby(["kapanewon_code", "date"]).n_maids.transform("sum")
+    x["share_pct"] = x.n_maids / x.day_total * 100
+    x["block_count"] = x.n_maids.where(x.hour.isin(hours), 0)
+    x["midnight_count"] = x.n_maids.where(x.hour.le(2), 0)
+    area_day = x.groupby(["kapanewon_code", "kapanewon", "kab_kota", "date", "period"], as_index=False).agg(
+        numerator=("block_count", "sum"), denominator=("n_maids", "sum"), midnight=("midnight_count", "sum"))
+    area_day["share_pct"] = area_day.numerator / area_day.denominator * 100
+    area_day["share_without_midnight_pct"] = area_day.numerator / (area_day.denominator - area_day.midnight) * 100
+    starts = {"before": before.min(), "during": during.min()}
+    area_day["week"] = [(d - starts[p]).days // 7 + 1 for d, p in zip(area_day.date, area_day.period)]
+    def compare(frame, value, group):
+        t = frame.groupby(group + ["period"])[value].mean().unstack("period")
+        t["change_pp"] = t.during - t.before
+        return t.reset_index()
+    summary = compare(area_day, "share_pct", ["kapanewon_code", "kapanewon", "kab_kota"])
+    midnight_summary = compare(area_day, "share_without_midnight_pct", ["kapanewon_code", "kapanewon", "kab_kota"])
+    weekly = area_day.groupby(["kapanewon_code", "kapanewon", "period", "week"], as_index=False).agg(
+        share_pct=("share_pct", "mean"), days=("date", "nunique"))
+    cols = [f"g_{c}" for c in GOOGLE_CATEGORIES]
+    if daily.index.duplicated().any() or daily.reindex(selected_dates)[cols].isna().any().any():
+        raise ValueError("Google dates missing, duplicated, or null")
+    google_days = daily.loc[selected_dates, cols].copy()
+    google_days.columns = GOOGLE_CATEGORIES
+    google_days.index.name = "date"
+    google_days["period"] = np.where(google_days.index.isin(before), "before", "during")
+    google = google_days.groupby("period")[GOOGLE_CATEGORIES].mean().T
+    google.index.name = "category"
+    google["change_pp"] = google.during - google.before
+    profiles = x.groupby(["kapanewon_code", "kapanewon", "period", "hour"], as_index=False).share_pct.mean()
+    return dict(before=before, during=during, coverage=coverage.reset_index(), area_day=area_day,
+                summary=summary, weekly=weekly, profiles=profiles, google=google.reset_index(),
+                google_days=google_days.reset_index(), midnight_summary=midnight_summary)

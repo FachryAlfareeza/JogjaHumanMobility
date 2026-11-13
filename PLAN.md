@@ -24,14 +24,14 @@ Shared rules for Output 2 (complete-day profiles, holiday baseline, city visit s
 | # | Source | Role | Level | Status |
 |---|---|---|---|---|
 | 1 | JogjaPulse (Zenodo 10.5281/zenodo.23157460, CC BY 4.0) | Main data | 500 m grid/day, kapanewon/hour, OD/month | Downloaded, 9 files MD5-checked |
-| 2 | Google Community Mobility Reports, DIY | Independent cross-check (Output 1); second view of Ramadan (Output 2) | Province/day, % vs Jan–Feb 2020 baseline | Downloaded, 151 of 151 days; 2021 also used for Ramadan 1442 |
+| 2 | Google Community Mobility Reports, DIY | Independent cross-check (Output 1); second view of Ramadan (Output 2) | Province/day, % vs Jan–Feb 2020 baseline | Downloaded, 151 of 151 days; 2021 retained as source data; final Ramadan story uses 2022 only |
 
 Context layers:
 
 | Layer | Decision | Status |
 |---|---|---|
 | Holiday calendar | Use | Done: 9 dated rows, 8 checked against sources, Nyepi not yet checked |
-| Ramadan 1442 start (13 Apr 2021) | Use, for the Google 2021 comparison | Done: `config.RAMADAN_2021_START`, checked against the government isbat result (setkab.go.id) |
+| Ramadan 1442 (2021) comparison | Outside the final Ramadan analysis | Final narrative uses the same 2022 comparison dates in both sources |
 | PPKM level by date | Leave out for now | Sources disagree for Feb–Mar 2022 (reports range from level 2 to level 4); add only if a group member checks the Inmendagri texts |
 | Kapanewon boundaries (HDX `cod-ab-idn`) | Use, for maps | Not started (T3) |
 | Population | Use | Done: `pop_actual` from the JogjaPulse file, reference year not stated |
@@ -79,7 +79,7 @@ Ordered by strength of result, which is also the order for the video.
 
 | # | Topic | Notebook | Question | Result (first pass, 12 Nov) | Caveat |
 |---|---|---|---|---|---|
-| A1 | Ramadan | `06_ramadan` | How do daily timing and place visits change in Ramadan 1443? | The 03:00–04:59 share of the day rises from 3.7% to 8.1% (first 3 weeks vs 3 weeks before), stepping up on 2–3 Apr; it rose in all 16 kapanewon with enough data and in every kabupaten. Google: parks −25.8, transit −11.4, retail −8.8 pp, residential +2.2; Ramadan 2021 has the same signs, and a placebo 3 weeks earlier moves the other way. JogjaPulse Gunungkidul share −29.5% (placebo +3.2%), the same direction as Google parks. | One Ramadan in JogjaPulse. The 00–02 drop (11.3% to 5.9%) is local: Gondomanan held 44.6% of DIY 00–02 device-hours before Ramadan. Data ends before Idul Fitri. |
+| A1 | Ramadan | `06_ramadan` | How do observed timing and Google place-category indices differ in early Ramadan? | 12 Mar–1 Apr vs 3–23 Apr 2022, all 21 days. Banguntapan 03–04 share 2.5% to 7.5%; Depok 2.6% to 6.2%. Google DIY parks −24.9 index points, retail/recreation −8.5, residential +2.6. Focal directions persist under specified sensitivities. See docs/ramadan_insights.md. | Four areas have every hour published; two examples chosen from daytime story. Pre-period already rises. Presence is not trips; Google measures differ. No causal claim or 2021 comparison. |
 | A2 | Daytime visits to the city | `05_daytime_visits` | Where do Kota Yogyakarta's daytime visitors live, and which city kapanewon do they visit? | Neighbouring kapanewon send the largest share of their daytime visits to the city: Banguntapan 38.2%, Sewon 38.1%, Kasihan 35.5%, Depok 28.8%, Gamping 27.2%. Kabupaten medians: Sleman 15.2%, Bantul 13.9%, Kulon Progo 10.6%, Gunungkidul 9.3%. Most visited: Umbulharjo, Gondokusuman. | Dec–Feb only. A "daytime visit" (08–17, once a month) is not commuting; Output 1's day/night proxy showed no weekday contrast. Visit rates double Dec–Feb (panel), so the city share is the quoted measure. |
 | A3 | Daily rhythm | `03_daily_rhythm` | At what hours is each kapanewon busy, and what changes on days off? | Profiles are very similar across kapanewon (k-means k = 2, silhouette 0.67, separates only 4 kapanewon with a 01:00–02:00 peak). Median night share 13.2% in Kota Yogyakarta vs 10.5% in Gunungkidul. On days off, share moves from daytime to night, most in the city (daytime −2.68 pp, night +2.24 pp). | Complete 24-hour days only; 13 kapanewon (10 in Gunungkidul) have too few. Night share correlates with devices per day (Spearman 0.36). |
 | A4 | Holidays | `04_holiday_hotspots` | Which places gain on public holidays? | No hotspot at 500 m: redistribution 26.1% on holidays vs 24.2% on ordinary weekends; the top cell (1.16 pp) is below the placebo 95th percentile (2.42 pp). Kokap (+46%, up on 6 of 6 holidays) and Gedongtengen (+20%) beat the placebo; 2 of 78 is about what chance gives. Gunungkidul kapanewon gain 11.8% on average. | Baseline is ±1, ±2 weeks within the same panel segment. 29 Apr has no baseline. Mostly a negative result. |
@@ -148,8 +148,8 @@ Critical path: Output 2 review, then T16, T17, T18, T19.
 | Risk | Impact | Mitigation |
 |---|---|---|
 | eLOK deadline not confirmed | Whole schedule | LEAD confirms this week; plan targets 20 Nov |
-| Output 1 agreement is weak | Output 2 claims could overreach | Output 2 leans on timing and leisure, where Output 1 found agreement, and checks each result against a placebo window |
-| Ramadan result rests on one Ramadan in JogjaPulse | Could be season or panel | Google 2021 comparison and placebo windows (notebook 06 §4b); state it as one Ramadan |
+| Output 1 agreement is weak | Output 2 claims could overreach | Output 2 leans on timing and leisure, where Output 1 found agreement, and checks Ramadan results using weekly and sensitivity comparisons |
+| Ramadan result rests on one period comparison | Could reflect routine, season, sample or recording changes | Inspect weekly pretrend, paired-Friday and hour/denominator sensitivities; report observational differences, not a causal effect |
 | Lattice artifact | Fake hotspots | Excluded in `grid_daily`; shown as a limitation |
 | Panel size and geography drift | Fake trends | Rules in 3b |
 | HDX names vs JogjaPulse names | Map joins fail | T3 matches on code where possible, then names, with an assertion of 0 unmatched |

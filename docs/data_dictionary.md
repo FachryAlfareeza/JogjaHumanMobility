@@ -118,3 +118,27 @@ the two largest complete pairs by mean monthly count, not the largest rate gap.
 ## Interim tables (`data/interim/`)
 
 These are typed copies of the raw files, with names normalised and checked: `hourly_kapanewon`, `grid_daily`, `grid_cells`, `od_visits`, `od_homes`, `population`, `night_validation`, `google_diy`, `calendar`, plus `kapanewon_crosswalk.csv` (78 codes; `name_is_unique` is false for the two JETIS rows).
+
+## Ramadan evidence (notebook 06)
+
+`src/applied.py:ramadan_analysis` supplies notebook 06 and the existing Ramadan dashboard tab.
+Main windows: 12 Mar–1 Apr and 3–23 Apr 2022; all days included, 2 Apr excluded.
+Only areas with every 24-hour day complete in both windows qualify. A missing hour
+never becomes zero. Focal areas: Banguntapan and Depok (selected in the daytime story).
+
+Exports `reports/tables/ramadan_*.csv`:
+
+| Table | Grain and meaning |
+|---|---|
+| `area_day` | Area × date: numerator = summed device-hour counts at 03–04; denominator = all 24 hours; `share_pct` = 100 × numerator/denominator. `midnight` = 00–02 counts; alternate share excludes these from denominator. `week` = consecutive seven-day block within period. |
+| `summary` | Area: before/during = equal-day means, `change_pp` = during minus before. Not unique people, visits or trips. |
+| `coverage` | All 78 areas: complete vs expected days in both periods, `eligible` requires all dates complete. |
+| `profiles`, `weekly` | Area × period × hour, or area × period × week: mean daily share. |
+| `google_days`, `google` | DIY × date for all six categories, or category means before/during and difference in index points. Residential is time at home; other categories concern visits. |
+| `sensitivity` | Area × scenario: primary, wider 03–05 hours, paired-Friday exclusion, midnight-excluded denominator. |
+| `google_no_friday` | Category: same Google comparison excluding 25 Mar and 15 Apr. |
+
+`ramadan_provenance.json` records dates, input hashes and raw-source reconciliation.
+Source device counts repeat across hours; daily denominator is device-hour presence,
+not unique devices. Google retains its Jan–Feb 2020 same-weekday baseline. Do not
+combine these units or treat province/category indices as area/hour observations.

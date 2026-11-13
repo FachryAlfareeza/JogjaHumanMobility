@@ -12,7 +12,7 @@ The project has two outputs:
 Headline results so far (details and caveats in [PLAN.md](PLAN.md) sections 2 and 3):
 
 - Output 1: JogjaPulse's Gunungkidul share and Google's parks index agree weakly to moderately once both are compared with the same weekday (Spearman r = 0.37, 95% CI 0.11–0.56); there is no clear agreement for stations or malls.
-- Output 2: in the first three weeks of Ramadan 1443, the share of the day's device-hours at 03:00–04:59 rises from 3.7% to 8.1%. In the pair-level daytime analysis, Banguntapan is observed more in Umbulharjo (20.5%) than Gondokusuman (7.3%), while Depok shows the reverse (5.3% and 10.0%). These are weighted device-month proportions of each origin's home-assigned sample for December–February; the destination ordering holds in each month.
+- Output 2: in 3–23 Apr 2022 versus 12 Mar–1 Apr, mean daily presence share at 03:00–04:59 rises from 2.5% to 7.5% in Banguntapan and 2.6% to 6.2% in Depok. Google DIY parks and retail/recreation indices are lower by 24.9 and 8.5 points; residential is higher by 2.6 points. These are observational period differences, not a causal Ramadan effect. In the pair-level daytime analysis, Banguntapan is observed more in Umbulharjo (20.5%) than Gondokusuman (7.3%), while Depok shows the reverse (5.3% and 10.0%). These are weighted device-month proportions of each origin's home-assigned sample for December–February; the destination ordering holds in each month.
 
 - Plan, research questions and timeline: [PLAN.md](PLAN.md)
 - Table and column definitions: [docs/data_dictionary.md](docs/data_dictionary.md)
@@ -77,7 +77,30 @@ pair-month counts, denominators, rates and within-origin destination ranks to
 `reports/tables/rq4_daytime_story_evidence.csv`, and checks their counts and
 denominators directly against the raw source CSVs. This pair-level analysis complements the
 origin-level city-share analysis in `notebooks/05_daytime_visits.ipynb`. The
-existing Ramadan notebook (`06_ramadan.ipynb`) and dashboard are unchanged.
+Ramadan analysis is described below.
+
+### Ramadan: timing and Google categories
+
+Open `notebooks/06_ramadan.ipynb` after the pipeline and run top-to-bottom.
+The main comparison includes all 21 days per period, preserving identical weekday
+composition. The transition day 2 Apr is excluded. Only areas with all 24 hours
+on every comparison day qualify; Banguntapan and Depok are the focal examples,
+chosen from the daytime story, not from the largest Ramadan changes.
+
+The main figure is `reports/figures/ramadan_story.png`. Supporting daily, weekly,
+24-hour profile, coverage and sensitivity tables are `reports/tables/ramadan_*.csv`;
+`ramadan_provenance.json` records input hashes and source reconciliation.
+The Indonesian narrative is [docs/ramadan_insights.md](docs/ramadan_insights.md).
+Notebook and dashboard use the same `ramadan_analysis` calculation in `src/applied.py`.
+
+Wider hours (03:00–05:59), paired-Friday exclusion (25 Mar / 15 Apr), and a
+midnight-excluded denominator preserve the focal increases. The pre-period already
+trends upward; Gondomanan is sensitive to the hour block and denominator. Avoid
+extending the focal conclusion to all DIY. Google covers DIY, has a different
+population and baseline, and residential measures time at home. Its index changes
+are not percentage changes in visit counts between the two periods. No 2021
+comparison, full-Ramadan, Idul Fitri, transport-demand or business-opportunity claim
+is made by this analysis.
 
 ## Structure
 
